@@ -1,0 +1,35 @@
+{
+  "event_name": "pull_request",
+  "actor": "octocat",
+  "repository": "octocat/Hello-World",
+  "server_url": "https://github.com",
+  "event": {
+    "action": "opened",
+    "pull_request": {
+      "number": 42,
+      "title": "Add new feature",
+      "html_url": "https://github.com/octocat/Hello-World/pull/42",
+      "body": "This PR adds a new feature",
+      "draft": false,
+      "merged": false,
+      "user": {
+        "login": "octocat",
+        "html_url": "https://github.com/octocat"
+      },
+      "base": {
+        "ref": "main"
+      },
+      "head": {
+        "ref": "feature-branch"
+      }
+    },
+    "repository": {
+      "full_name": "octocat/Hello-World",
+      "html_url": "https://github.com/octocat/Hello-World"
+    },
+    "sender": {
+      "login": "octocat",
+      "html_url": "https://github.com/octocat"
+    }
+  }
+}

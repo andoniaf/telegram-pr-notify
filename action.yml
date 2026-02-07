@@ -1,0 +1,37 @@
+name: "Telegram PR Notify"
+description: "Send Telegram notifications for GitHub Pull Request events"
+author: "andoniaf"
+
+branding:
+  icon: "message-circle"
+  color: "blue"
+
+inputs:
+  bot_token:
+    description: "Telegram Bot API token"
+    required: true
+  chat_id:
+    description: "Telegram chat ID"
+    required: true
+  topic_id:
+    description: "Telegram forum topic/thread ID"
+    required: false
+    default: ""
+  custom_template:
+    description: "Go template string to override default message"
+    required: false
+    default: ""
+  event_payload:
+    description: "GitHub context JSON payload"
+    required: false
+    default: ${{ toJSON(github) }}
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    INPUT_BOT_TOKEN: ${{ inputs.bot_token }}
+    INPUT_CHAT_ID: ${{ inputs.chat_id }}
+    INPUT_TOPIC_ID: ${{ inputs.topic_id }}
+    INPUT_CUSTOM_TEMPLATE: ${{ inputs.custom_template }}
+    INPUT_EVENT_PAYLOAD: ${{ inputs.event_payload }}
