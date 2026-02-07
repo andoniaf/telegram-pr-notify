@@ -31,3 +31,10 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Worktrees
+.worktrees/
+
+# Claude Code - track shared config and skills, ignore local settings
+!.claude/
+.claude/settings.local.json
