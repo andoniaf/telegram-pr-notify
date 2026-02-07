@@ -1,5 +1,8 @@
 name: PR Notifications
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     types: [opened, closed, reopened, synchronize, ready_for_review, converted_to_draft]
@@ -12,7 +15,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./
         with:
           bot_token: ${{ secrets.TELEGRAM_BOT_TOKEN }}

@@ -1,0 +1,9 @@
+.git
+.github
+.gitignore
+.idea
+*.md
+*_test.go
+coverage.*
+LICENSE
+testdata
