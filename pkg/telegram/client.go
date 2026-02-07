@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 const apiBase = "https://api.telegram.org"
@@ -84,11 +85,11 @@ func (c *Client) SendMessage(text, buttonText, buttonURL string) error {
 	url := fmt.Sprintf("%s/bot%s/sendMessage", c.apiURL, c.botToken)
 	resp, err := http.Post(url, "application/json", bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("sending request: %w", err)
+		return fmt.Errorf("sending request to Telegram API: %w", sanitizeErr(err, c.botToken))
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
 		return fmt.Errorf("reading response: %w", err)
 	}
@@ -103,4 +104,13 @@ func (c *Client) SendMessage(text, buttonText, buttonURL string) error {
 	}
 
 	return nil
+}
+
+// sanitizeErr removes the bot token from error messages to prevent log leakage.
+func sanitizeErr(err error, token string) error {
+	if err == nil || token == "" {
+		return err
+	}
+	cleaned := strings.ReplaceAll(err.Error(), token, "[REDACTED]")
+	return fmt.Errorf("%s", cleaned)
 }

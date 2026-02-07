@@ -1,0 +1,4 @@
+export INPUT_BOT_TOKEN="your-bot-token-here"
+export INPUT_CHAT_ID="your-chat-id-here"
+export INPUT_TOPIC_ID=""
+export INPUT_EVENT_PAYLOAD='{}'

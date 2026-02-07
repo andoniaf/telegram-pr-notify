@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/andoniaf/telegram-pr-notify/pkg/events"
 	"github.com/andoniaf/telegram-pr-notify/pkg/templates"
 	"github.com/andoniaf/telegram-pr-notify/pkg/telegram"
 )
+
+var chatIDPattern = regexp.MustCompile(`^-?\d+$`)
 
 func main() {
 	botToken := os.Getenv("INPUT_BOT_TOKEN")
@@ -16,11 +19,18 @@ func main() {
 	customTemplate := os.Getenv("INPUT_CUSTOM_TEMPLATE")
 	eventPayload := os.Getenv("INPUT_EVENT_PAYLOAD")
 
+	if botToken != "" {
+		fmt.Fprintf(os.Stdout, "::add-mask::%s\n", botToken)
+	}
+
 	if botToken == "" {
 		fatal("bot_token is required")
 	}
 	if chatID == "" {
 		fatal("chat_id is required")
+	}
+	if !chatIDPattern.MatchString(chatID) {
+		fatal("chat_id must be a numeric value (e.g., -100123456789)")
 	}
 	if eventPayload == "" {
 		fatal("event_payload is required")
