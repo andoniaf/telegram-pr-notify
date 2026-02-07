@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.93.1
+    hooks:
+      - id: trufflehog
+        entry: trufflehog git file://. --since-commit HEAD --results=verified,unknown --fail
+        stages: [pre-commit, pre-push]
+
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: go fmt
+        entry: gofmt -l -w
+        language: system
+        types: [go]
+      - id: go-vet
+        name: go vet
+        entry: go vet ./...
+        language: system
+        types: [go]
+        pass_filenames: false
+      - id: go-build
+        name: go build
+        entry: go build ./...
+        language: system
+        types: [go]
+        pass_filenames: false
