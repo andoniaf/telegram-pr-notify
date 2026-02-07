@@ -81,12 +81,12 @@ by <a href="{{.Actor.HTMLURL}}">{{.Actor.Login}}</a> in <a href="{{.Repo.HTMLURL
 
 // defaultTemplates maps event_name + action to a default template string.
 var defaultTemplates = map[string]string{
-	"pull_request:opened":            prOpened,
-	"pull_request:closed":            prClosed,
-	"pull_request:merged":            prMerged,
-	"pull_request:reopened":          prReopened,
-	"pull_request:synchronize":       prSynchronize,
-	"pull_request:ready_for_review":  prReadyForReview,
+	"pull_request:opened":             prOpened,
+	"pull_request:closed":             prClosed,
+	"pull_request:merged":             prMerged,
+	"pull_request:reopened":           prReopened,
+	"pull_request:synchronize":        prSynchronize,
+	"pull_request:ready_for_review":   prReadyForReview,
 	"pull_request:converted_to_draft": prConvertedToDraft,
 
 	"pull_request_review:approved":          reviewApproved,

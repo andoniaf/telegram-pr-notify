@@ -6,8 +6,8 @@ import (
 	"regexp"
 
 	"github.com/andoniaf/telegram-pr-notify/pkg/events"
-	"github.com/andoniaf/telegram-pr-notify/pkg/templates"
 	"github.com/andoniaf/telegram-pr-notify/pkg/telegram"
+	"github.com/andoniaf/telegram-pr-notify/pkg/templates"
 )
 
 var chatIDPattern = regexp.MustCompile(`^-?\d+$`)
