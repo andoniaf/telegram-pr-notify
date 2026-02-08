@@ -87,7 +87,7 @@ type TemplateData struct {
 	Comment   Comment
 }
 
-var linkedIssuePattern = regexp.MustCompile(`(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b`)
+var linkedIssuePattern = regexp.MustCompile(`(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?|refs?):?\s+#(\d+)\b`)
 
 // IssueLink represents a linked issue parsed from a PR body.
 type IssueLink struct {

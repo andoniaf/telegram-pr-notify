@@ -325,6 +325,26 @@ func TestLinkedIssues(t *testing.T) {
 			wantText: []string{"Issue #1", "Issue #2", "Issue #3", "Issue #4", "Issue #5", "Issue #6", "Issue #7", "Issue #8", "Issue #9"},
 		},
 		{
+			name:     "colon variant",
+			body:     "Closes: #11\nFixes: #12",
+			wantLen:  2,
+			wantText: []string{"Issue #11", "Issue #12"},
+			wantURL: []string{
+				"https://github.com/octocat/Hello-World/issues/11",
+				"https://github.com/octocat/Hello-World/issues/12",
+			},
+		},
+		{
+			name:     "refs keyword",
+			body:     "Refs #113\nRef #50",
+			wantLen:  2,
+			wantText: []string{"Issue #113", "Issue #50"},
+			wantURL: []string{
+				"https://github.com/octocat/Hello-World/issues/113",
+				"https://github.com/octocat/Hello-World/issues/50",
+			},
+		},
+		{
 			name:    "empty body",
 			body:    "",
 			wantLen: 0,
