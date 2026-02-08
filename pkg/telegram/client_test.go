@@ -31,7 +31,7 @@ func TestSendMessageSuccess(t *testing.T) {
 
 	client := newTestClient(server.URL)
 
-	err := client.SendMessage("Hello", "View PR", "https://github.com/pr/1")
+	err := client.SendMessage("Hello", []Button{{Text: "View PR", URL: "https://github.com/pr/1"}})
 	if err != nil {
 		t.Fatalf("SendMessage() error: %v", err)
 	}
@@ -66,6 +66,49 @@ func TestSendMessageSuccess(t *testing.T) {
 	}
 }
 
+func TestSendMessageMultipleButtons(t *testing.T) {
+	var received sendMessageRequest
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		json.Unmarshal(body, &received)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"ok": true}`))
+	}))
+	defer server.Close()
+
+	client := newTestClient(server.URL)
+
+	buttons := []Button{
+		{Text: "View PR", URL: "https://github.com/pr/1"},
+		{Text: "Issue #15", URL: "https://github.com/repo/issues/15"},
+	}
+	err := client.SendMessage("Hello", buttons)
+	if err != nil {
+		t.Fatalf("SendMessage() error: %v", err)
+	}
+
+	if received.ReplyMarkup == nil {
+		t.Fatal("ReplyMarkup is nil, want inline keyboard")
+	}
+	if len(received.ReplyMarkup.InlineKeyboard) != 1 {
+		t.Fatalf("expected 1 row, got %d", len(received.ReplyMarkup.InlineKeyboard))
+	}
+	row := received.ReplyMarkup.InlineKeyboard[0]
+	if len(row) != 2 {
+		t.Fatalf("expected 2 buttons in row, got %d", len(row))
+	}
+	if row[0].Text != "View PR" {
+		t.Errorf("button[0].Text = %q, want %q", row[0].Text, "View PR")
+	}
+	if row[1].Text != "Issue #15" {
+		t.Errorf("button[1].Text = %q, want %q", row[1].Text, "Issue #15")
+	}
+	if row[1].URL != "https://github.com/repo/issues/15" {
+		t.Errorf("button[1].URL = %q, want %q", row[1].URL, "https://github.com/repo/issues/15")
+	}
+}
+
 func TestSendMessageWithTopicID(t *testing.T) {
 	var received sendMessageRequest
 
@@ -80,7 +123,7 @@ func TestSendMessageWithTopicID(t *testing.T) {
 	client := newTestClient(server.URL)
 	client.topicID = "456"
 
-	err := client.SendMessage("Hello", "", "")
+	err := client.SendMessage("Hello", nil)
 	if err != nil {
 		t.Fatalf("SendMessage() error: %v", err)
 	}
@@ -106,7 +149,7 @@ func TestSendMessageAPIError(t *testing.T) {
 	client := newTestClient(server.URL)
 	client.chatID = "invalid"
 
-	err := client.SendMessage("Hello", "", "")
+	err := client.SendMessage("Hello", nil)
 	if err == nil {
 		t.Fatal("SendMessage() expected error for API error")
 	}
@@ -126,7 +169,7 @@ func TestSendMessageInvalidTopicID(t *testing.T) {
 		httpClient: &http.Client{},
 	}
 
-	err := client.SendMessage("Hello", "", "")
+	err := client.SendMessage("Hello", nil)
 	if err == nil {
 		t.Fatal("SendMessage() expected error for invalid topic_id")
 	}
@@ -145,7 +188,7 @@ func TestSendMessageRequestPath(t *testing.T) {
 	client := newTestClient(server.URL)
 	client.botToken = "my-secret-token"
 
-	err := client.SendMessage("Hello", "", "")
+	err := client.SendMessage("Hello", nil)
 	if err != nil {
 		t.Fatalf("SendMessage() error: %v", err)
 	}
@@ -170,7 +213,7 @@ func TestSendMessageTruncatesLongText(t *testing.T) {
 	client := newTestClient(server.URL)
 
 	longText := strings.Repeat("x", 5000)
-	err := client.SendMessage(longText, "", "")
+	err := client.SendMessage(longText, nil)
 	if err != nil {
 		t.Fatalf("SendMessage() error: %v", err)
 	}
@@ -198,7 +241,7 @@ func TestSendMessageDoesNotTruncateShortText(t *testing.T) {
 	client := newTestClient(server.URL)
 
 	shortText := "Hello, World!"
-	err := client.SendMessage(shortText, "", "")
+	err := client.SendMessage(shortText, nil)
 	if err != nil {
 		t.Fatalf("SendMessage() error: %v", err)
 	}

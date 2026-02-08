@@ -54,8 +54,13 @@ func run() error {
 		return fmt.Errorf("rendering template: %w", err)
 	}
 
+	buttons := []telegram.Button{{Text: data.ButtonText(), URL: data.RelevantURL()}}
+	for _, issue := range data.LinkedIssues() {
+		buttons = append(buttons, telegram.Button{Text: issue.Text, URL: issue.URL})
+	}
+
 	client := telegram.NewClient(botToken, chatID, topicID)
-	if err := client.SendMessage(message, data.ButtonText(), data.RelevantURL()); err != nil {
+	if err := client.SendMessage(message, buttons); err != nil {
 		return fmt.Errorf("sending message: %w", err)
 	}
 

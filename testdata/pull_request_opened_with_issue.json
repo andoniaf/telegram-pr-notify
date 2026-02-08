@@ -1,0 +1,35 @@
+{
+  "event_name": "pull_request",
+  "actor": "octocat",
+  "repository": "octocat/Hello-World",
+  "server_url": "https://github.com",
+  "event": {
+    "action": "opened",
+    "pull_request": {
+      "number": 43,
+      "title": "Fix the bug",
+      "html_url": "https://github.com/octocat/Hello-World/pull/43",
+      "body": "Closes #15\nThis PR fixes the bug",
+      "draft": false,
+      "merged": false,
+      "user": {
+        "login": "octocat",
+        "html_url": "https://github.com/octocat"
+      },
+      "base": {
+        "ref": "main"
+      },
+      "head": {
+        "ref": "fix-branch"
+      }
+    },
+    "repository": {
+      "full_name": "octocat/Hello-World",
+      "html_url": "https://github.com/octocat/Hello-World"
+    },
+    "sender": {
+      "login": "octocat",
+      "html_url": "https://github.com/octocat"
+    }
+  }
+}

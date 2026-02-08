@@ -3,6 +3,8 @@ package events
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strconv"
 )
 
 // GitHubContext represents the top-level structure of toJSON(github).
@@ -83,6 +85,42 @@ type TemplateData struct {
 	PR        PullRequest
 	Review    Review
 	Comment   Comment
+}
+
+var linkedIssuePattern = regexp.MustCompile(`(?i)\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b`)
+
+// IssueLink represents a linked issue parsed from a PR body.
+type IssueLink struct {
+	Text string
+	URL  string
+}
+
+// LinkedIssues parses GitHub closing keywords from the PR body and returns
+// deduplicated issue links for the same repository.
+func (d *TemplateData) LinkedIssues() []IssueLink {
+	if d.PR.Body == "" || d.Repo.HTMLURL == "" {
+		return nil
+	}
+
+	matches := linkedIssuePattern.FindAllStringSubmatch(d.PR.Body, -1)
+	if len(matches) == 0 {
+		return nil
+	}
+
+	seen := make(map[int]bool)
+	var links []IssueLink
+	for _, m := range matches {
+		num, err := strconv.Atoi(m[1])
+		if err != nil || seen[num] {
+			continue
+		}
+		seen[num] = true
+		links = append(links, IssueLink{
+			Text: fmt.Sprintf("Issue #%d", num),
+			URL:  fmt.Sprintf("%s/issues/%d", d.Repo.HTMLURL, num),
+		})
+	}
+	return links
 }
 
 // IsMerged returns true if the PR was closed via merge.
