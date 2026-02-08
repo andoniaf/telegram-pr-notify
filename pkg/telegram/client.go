@@ -16,6 +16,12 @@ const apiBase = "https://api.telegram.org"
 const telegramMaxMessageLength = 4096
 const truncationMarker = "\n\n[message truncated]"
 
+// Button represents an inline keyboard button.
+type Button struct {
+	Text string
+	URL  string
+}
+
 type Client struct {
 	botToken   string
 	chatID     string
@@ -66,8 +72,8 @@ func (c *Client) WithHTTPClient(hc *http.Client) *Client {
 	return c
 }
 
-// SendMessage sends an HTML message with an optional inline keyboard button.
-func (c *Client) SendMessage(text, buttonText, buttonURL string) error {
+// SendMessage sends an HTML message with optional inline keyboard buttons.
+func (c *Client) SendMessage(text string, buttons []Button) error {
 	if len([]rune(text)) > telegramMaxMessageLength {
 		runes := []rune(text)
 		maxLen := telegramMaxMessageLength - len([]rune(truncationMarker))
@@ -89,11 +95,13 @@ func (c *Client) SendMessage(text, buttonText, buttonURL string) error {
 		req.MessageThreadID = &tid
 	}
 
-	if buttonText != "" && buttonURL != "" {
+	if len(buttons) > 0 {
+		row := make([]inlineButton, len(buttons))
+		for i, b := range buttons {
+			row[i] = inlineButton{Text: b.Text, URL: b.URL}
+		}
 		req.ReplyMarkup = &replyMarkup{
-			InlineKeyboard: [][]inlineButton{
-				{{Text: buttonText, URL: buttonURL}},
-			},
+			InlineKeyboard: [][]inlineButton{row},
 		}
 	}
 

@@ -271,6 +271,107 @@ func TestRelevantURL(t *testing.T) {
 	}
 }
 
+func TestLinkedIssues(t *testing.T) {
+	base := TemplateData{
+		Repo: Repository{HTMLURL: "https://github.com/octocat/Hello-World"},
+	}
+
+	tests := []struct {
+		name     string
+		body     string
+		wantLen  int
+		wantText []string
+		wantURL  []string
+	}{
+		{
+			name:    "no issues",
+			body:    "Just a regular PR body",
+			wantLen: 0,
+		},
+		{
+			name:     "single closes",
+			body:     "Closes #15",
+			wantLen:  1,
+			wantText: []string{"Issue #15"},
+			wantURL:  []string{"https://github.com/octocat/Hello-World/issues/15"},
+		},
+		{
+			name:     "multiple issues",
+			body:     "Fixes #10 and resolves #20",
+			wantLen:  2,
+			wantText: []string{"Issue #10", "Issue #20"},
+			wantURL: []string{
+				"https://github.com/octocat/Hello-World/issues/10",
+				"https://github.com/octocat/Hello-World/issues/20",
+			},
+		},
+		{
+			name:     "duplicates are removed",
+			body:     "Fixes #42\nAlso fixes #42",
+			wantLen:  1,
+			wantText: []string{"Issue #42"},
+			wantURL:  []string{"https://github.com/octocat/Hello-World/issues/42"},
+		},
+		{
+			name:     "case insensitive",
+			body:     "CLOSES #5\nFIXES #6\nRESOLVES #7",
+			wantLen:  3,
+			wantText: []string{"Issue #5", "Issue #6", "Issue #7"},
+		},
+		{
+			name:     "all keyword variants",
+			body:     "close #1\ncloses #2\nclosed #3\nfix #4\nfixes #5\nfixed #6\nresolve #7\nresolves #8\nresolved #9",
+			wantLen:  9,
+			wantText: []string{"Issue #1", "Issue #2", "Issue #3", "Issue #4", "Issue #5", "Issue #6", "Issue #7", "Issue #8", "Issue #9"},
+		},
+		{
+			name:    "empty body",
+			body:    "",
+			wantLen: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data := base
+			data.PR = PullRequest{Body: tt.body}
+			issues := data.LinkedIssues()
+			if len(issues) != tt.wantLen {
+				t.Fatalf("LinkedIssues() returned %d issues, want %d", len(issues), tt.wantLen)
+			}
+			for i, issue := range issues {
+				if i < len(tt.wantText) && issue.Text != tt.wantText[i] {
+					t.Errorf("issue[%d].Text = %q, want %q", i, issue.Text, tt.wantText[i])
+				}
+				if tt.wantURL != nil && i < len(tt.wantURL) && issue.URL != tt.wantURL[i] {
+					t.Errorf("issue[%d].URL = %q, want %q", i, issue.URL, tt.wantURL[i])
+				}
+			}
+		})
+	}
+}
+
+func TestLinkedIssuesFromFixture(t *testing.T) {
+	payload, err := os.ReadFile("../../testdata/pull_request_opened_with_issue.json")
+	if err != nil {
+		t.Fatalf("reading testdata: %v", err)
+	}
+	data, err := Parse(payload)
+	if err != nil {
+		t.Fatalf("Parse() error: %v", err)
+	}
+	issues := data.LinkedIssues()
+	if len(issues) != 1 {
+		t.Fatalf("LinkedIssues() = %d issues, want 1", len(issues))
+	}
+	if issues[0].Text != "Issue #15" {
+		t.Errorf("issue text = %q, want %q", issues[0].Text, "Issue #15")
+	}
+	if issues[0].URL != "https://github.com/octocat/Hello-World/issues/15" {
+		t.Errorf("issue URL = %q, want %q", issues[0].URL, "https://github.com/octocat/Hello-World/issues/15")
+	}
+}
+
 func TestButtonText(t *testing.T) {
 	tests := []struct {
 		eventName string
